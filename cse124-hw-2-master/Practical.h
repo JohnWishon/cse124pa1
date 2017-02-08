@@ -22,9 +22,47 @@ void HandleTCPClient(int clntSocket, int N);
 // Create and connect a new TCP client socket
 int SetupTCPClientSocket(const char *server, const char *service);
 
+
+HttpMessage readRequest(int sockfd);
+
+HttpRequest parseRequest(HttpMessage m);
+
+HttpResponse serveRequest(HttpRequest req);
+
+
 enum sizeConstants {
   MAXSTRINGLENGTH = 128,
-  BUFSIZE = 512,
+  BUFSIZE = 8192,
 };
+
+struct HeaderField{
+	char* fieldName[MAXSTRINGLENGTH],
+	char* fieldValue[MAXSTRINGLENGTH]
+};
+typedef struct HeaderField HeaderField;
+
+struct HttpRequest{
+  uint64_t count;   // invariant: !isResponse => count==0
+  int candidate;    // invariant: 0 <= candidate <= MAX_CANDIDATE
+  bool isInquiry;
+  bool isResponse;
+};
+typedef struct HttpRequest HttpRequest;
+
+struct HttpResponse{
+  uint64_t count;   // invariant: !isResponse => count==0
+  int candidate;    // invariant: 0 <= candidate <= MAX_CANDIDATE
+  bool isInquiry;
+  bool isResponse;
+};
+typedef struct HttpResponse HttpResponse;
+
+struct HttpMessage{
+  uint64_t count;   // invariant: !isResponse => count==0
+  int candidate;    // invariant: 0 <= candidate <= MAX_CANDIDATE
+  bool isInquiry;
+  bool isResponse;
+};
+typedef struct HttpMessage HttpMessage;
 
 #endif // PRACTICAL_H_

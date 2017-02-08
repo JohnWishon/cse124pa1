@@ -97,7 +97,8 @@ ssize_t recvTillNull(int clntSocket, char* buffer, ssize_t buf_size) {
       DieWithSystemMessage("recv() failed");
     recv_cnt += numBytesRcvd;
     for (ssize_t i = recv_cnt_prev; i < recv_cnt; ++i) {
-      if (buffer[i] == '\0') {
+
+      if(buffer[i]=='\0'){
         return i;
       }
     }
@@ -105,15 +106,33 @@ ssize_t recvTillNull(int clntSocket, char* buffer, ssize_t buf_size) {
   return -1;
 }
 
+void ParseClientRequest(char* buffer){
+  strtok();
+}
+
 void HandleTCPClient(int clntSocket, int N) {
+  
   char buffer[BUFSIZE]; // Buffer for echo string
+
   // Receive message from client
   ssize_t numBytesRcvd = recvTillNull(clntSocket, buffer, BUFSIZE);
   if (numBytesRcvd <= 0)
     DieWithSystemMessage("recv() failed");
+/*  
+  HTTPMessage m = readRequest(sockfd);
+  • HTTPRequest req = parseRequest(m)
+  • HTTPResponse res = serveRequest(req)
+  • returnResponse(sockfd, res);
+*/
+
+
+
+
+
   // Send it back N times
   for (int i = 0; i < N; ++i) {
     sendAll(clntSocket, buffer, numBytesRcvd);
   }
+
   close(clntSocket); // Close client socket
 }
