@@ -15,7 +15,8 @@ int main(int argc, char *argv[]) {
     DieWithUserMessage("Parameter(s)", "<Server Port> <N>");
 
   in_port_t servPort = atoi(argv[1]); // First arg:  local port
-  int N = atoi(argv[2]);
+  //int N = atoi(argv[2]);
+  string doc_root = argv[2];
 
   // Create socket for incoming connections
   int servSock; // Socket descriptor for server
@@ -56,7 +57,7 @@ int main(int argc, char *argv[]) {
     else
       puts("Unable to get client address");
 
-    HandleTCPClient(clntSock, N);
+    HandleTCPClient(clntSock, doc_root);
   }
   // NOT REACHED
 }

@@ -70,6 +70,7 @@ struct HttpResponse{
 	char * lastModified; 	// Last-Modified: <day-name>, <day> <month> <year> <hour>:<minute>:<second> GMT (required only if return type is 200)
 	char * contentType; 	// (required if return type is 200; if you create a custom error page, you can set this to ‘text/html’)
 	char * contentLength; // (required if return type is 200; if you create a custom error page, you can set this to the length of that page)
+	
 	//HttpHeader headers[MAXHEADERS];
 	/*
 	200 OK: The request was successful

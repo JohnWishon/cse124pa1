@@ -106,37 +106,21 @@ ssize_t recvTillNull(int clntSocket, char* buffer, ssize_t buf_size) {
   return -1;
 }
 
-
 HttpMessage readRequest(int sockfd){
-
-  //char * ptr = strstr(str,"\r\n\r\n");
-  // Receive message from client
-
   HttpMessage * mes;
-
-  //char buffer[BUFSIZE]; // Buffer for echo string
-
   ssize_t numBytesRcvd = recvTillNull(sockfd, mes->buffer, BUFSIZE);
   if (numBytesRcvd <= 0)
     DieWithSystemMessage("recv() failed");
-
   mes->numBytes = numBytesRcvd;
   return mes;
-
 } 
 
-
 HttpRequest parseRequest(HttpMessage m){
-
   HttpRequest req;
   const char * s = " :\"\'\r\n";
   char *token;
   char *messageTokens[5];
-   
-  /* get the first token */
   token = strtok(m->buffer, s);
-   
-  /* walk through other tokens */
   int i = 0;
   while( token != NULL ) 
   {
@@ -149,39 +133,35 @@ HttpRequest parseRequest(HttpMessage m){
     }else if(i == 4){
       messageTokens[i] = token;
     }
-       
     token = strtok(NULL, s);
   }
-
   return req;
 }
 
-
-HttpResponse serveRequest(HttpRequest req){
-
-
+HttpResponse serveRequest(HttpRequest req, char * doc_root){
+  char uri[PATH_MAX+1], docRoot[PATH_MAX+1], actualpath[PATH_MAX+1];
+  char *ptr;
+  strcpy(uri,  req->uri);
+  strcpy(docRoot, doc_root);
+  strcat(docRoot, uri);
+  ptr = realpath(docRoot, actualpath); 
+  if (ptr) {
+      printf("This source is at %s.\n", ptr);
+  } else {
+      perror("realpath");
+      exit(EXIT_FAILURE);
+  }
 }
 
 
 void returnResponse(int sockfd, HttpResponse res){
-
-  // Send it back N times
-  for (int i = 0; i < N; ++i) {
-    sendAll(clntSocket, buffer, numBytesRcvd);
-  }
-
+  sendAll(clntSocket, buffer, numBytesRcvd); //clntSocket
 }
 
-
-void HandleTCPClient(int clntSocket, int N) {
-
+void HandleTCPClient(int clntSocket, char * doc_root) {
   HttpMessage message = readRequest(clntSocket); 
-
   HttpRequest req = parseRequest(message); 
-
   HttpResponse res = serveRequest(HttpRequest req);
-
   returnResponse(clntSocket, res);
-
   close(clntSocket); // Close client socket   // if connection close header?
 }
