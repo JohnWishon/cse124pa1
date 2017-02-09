@@ -106,33 +106,82 @@ ssize_t recvTillNull(int clntSocket, char* buffer, ssize_t buf_size) {
   return -1;
 }
 
-void ParseClientRequest(char* buffer){
-  strtok();
-}
 
-void HandleTCPClient(int clntSocket, int N) {
-  
-  char buffer[BUFSIZE]; // Buffer for echo string
+HttpMessage readRequest(int sockfd){
 
+  //char * ptr = strstr(str,"\r\n\r\n");
   // Receive message from client
-  ssize_t numBytesRcvd = recvTillNull(clntSocket, buffer, BUFSIZE);
+
+  HttpMessage * mes;
+
+  //char buffer[BUFSIZE]; // Buffer for echo string
+
+  ssize_t numBytesRcvd = recvTillNull(sockfd, mes->buffer, BUFSIZE);
   if (numBytesRcvd <= 0)
     DieWithSystemMessage("recv() failed");
-/*  
-  HTTPMessage m = readRequest(sockfd);
-  • HTTPRequest req = parseRequest(m)
-  • HTTPResponse res = serveRequest(req)
-  • returnResponse(sockfd, res);
-*/
+
+  mes->numBytes = numBytesRcvd;
+  return mes;
+
+} 
 
 
+HttpRequest parseRequest(HttpMessage m){
+
+  HttpRequest req;
+  const char * s = " :\"\'\r\n";
+  char *token;
+  char *messageTokens[5];
+   
+  /* get the first token */
+  token = strtok(m->buffer, s);
+   
+  /* walk through other tokens */
+  int i = 0;
+  while( token != NULL ) 
+  {
+    if(i<3){
+      messageTokens[i] = token;
+      i++;
+    }else if(!strcmp(token,"host")){
+      messageTokens[i] = token;
+      i++;
+    }else if(i == 4){
+      messageTokens[i] = token;
+    }
+       
+    token = strtok(NULL, s);
+  }
+
+  return req;
+}
 
 
+HttpResponse serveRequest(HttpRequest req){
+
+
+}
+
+
+void returnResponse(int sockfd, HttpResponse res){
 
   // Send it back N times
   for (int i = 0; i < N; ++i) {
     sendAll(clntSocket, buffer, numBytesRcvd);
   }
 
-  close(clntSocket); // Close client socket
+}
+
+
+void HandleTCPClient(int clntSocket, int N) {
+
+  HttpMessage message = readRequest(clntSocket); 
+
+  HttpRequest req = parseRequest(message); 
+
+  HttpResponse res = serveRequest(HttpRequest req);
+
+  returnResponse(clntSocket, res);
+
+  close(clntSocket); // Close client socket   // if connection close header?
 }

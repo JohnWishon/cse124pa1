@@ -22,46 +22,71 @@ void HandleTCPClient(int clntSocket, int N);
 // Create and connect a new TCP client socket
 int SetupTCPClientSocket(const char *server, const char *service);
 
+HttpMessage readRequest(int sockfd); //what is the logic inside readRequest?
 
-HttpMessage readRequest(int sockfd);
-
-HttpRequest parseRequest(HttpMessage m);
+HttpRequest parseRequest(HttpMessage m); // what logic?
 
 HttpResponse serveRequest(HttpRequest req);
 
+returnResponse(sockfd, res);
 
 enum sizeConstants {
   MAXSTRINGLENGTH = 128,
   BUFSIZE = 8192,
+  MAXHEADERS = 100,
 };
 
-struct HeaderField{
-	char* fieldName[MAXSTRINGLENGTH],
-	char* fieldValue[MAXSTRINGLENGTH]
-};
-typedef struct HeaderField HeaderField;
+
+// struct InitialLine{
+// 	char* method[2] = "GET";
+// 	char* uri;
+// 	char* httpVersion[9] = "TritonHTTP"
+// };
+// typedef struct InitialLine InitialLine;
+
+// struct HttpHeader{
+// 	char* fieldName[MAXSTRINGLENGTH];
+// 	char* fieldValue[MAXSTRINGLENGTH];
+// };
+// typedef struct HttpHeader HttpHeader;
 
 struct HttpRequest{
-  uint64_t count;   // invariant: !isResponse => count==0
-  int candidate;    // invariant: 0 <= candidate <= MAX_CANDIDATE
-  bool isInquiry;
-  bool isResponse;
+	/* GET /images/myimg.jpg HTTP/1.1 */
+	char * messageTokens[5];
+
+	char * method = messageTokens[0];
+	char * uri = messageTokens[1];
+	char * httpVersion= messageTokens[2];
+	char * host = messageTokens[4];
+	
+	//	HttpHeader headers[MAXHEADERS];
 };
 typedef struct HttpRequest HttpRequest;
 
 struct HttpResponse{
-  uint64_t count;   // invariant: !isResponse => count==0
-  int candidate;    // invariant: 0 <= candidate <= MAX_CANDIDATE
-  bool isInquiry;
-  bool isResponse;
+	/* HTTP/1.1 200 OK */
+	char * status;
+	char * server;
+	char * lastModified; 	// Last-Modified: <day-name>, <day> <month> <year> <hour>:<minute>:<second> GMT (required only if return type is 200)
+	char * contentType; 	// (required if return type is 200; if you create a custom error page, you can set this to ‘text/html’)
+	char * contentLength; // (required if return type is 200; if you create a custom error page, you can set this to the length of that page)
+	//HttpHeader headers[MAXHEADERS];
+	/*
+	200 OK: The request was successful
+	400 Client Error: The client sent a malformed or invalid request that the server doesn’t understand
+	403 Forbidden: The request was not served because the client wasn’t allowed to access the requested content
+	404 Not Found: The requested content wasn’t there
+	500 Server Error: An error occured internal to the server. In this project we do not implement plugins, server-side scripting, or other extensions, and so you shouldn’t expect to use this return code
+	*/
 };
 typedef struct HttpResponse HttpResponse;
 
 struct HttpMessage{
-  uint64_t count;   // invariant: !isResponse => count==0
-  int candidate;    // invariant: 0 <= candidate <= MAX_CANDIDATE
-  bool isInquiry;
-  bool isResponse;
+
+//	uint16_t currRead;
+	uint16_t numBytes;
+	uint8_t error;
+	char* buffer[BUFSIZE];
 };
 typedef struct HttpMessage HttpMessage;
 
